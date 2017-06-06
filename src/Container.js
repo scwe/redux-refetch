@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { connect } from 'react-redux'
+import enhancedConnect from './redux-refetch'
 
 class Container extends PureComponent {
   expensiveFunction (){
@@ -14,11 +14,13 @@ class Container extends PureComponent {
 
   render (){
     this.expensiveFunction()
+    console.log('Props here are: ', this.props)
     return (
       <div> 
         <button onClick={this.props.addElement.bind(this, 'Test')}>
           Button
         </button>
+        <button onClick={this.props.incrementNumber.bind(this)}>Update Number</button>
         <div>
           {this.renderList()}
         </div>
@@ -30,8 +32,21 @@ class Container extends PureComponent {
 
 function mapStateToProps (state, props) {
   return {
-    list: state.list,
+    list: state.list
+  }
+}
+
+function mapStateToDependencies (state, props) {
+  return {
     num: state.num
+  }
+}
+
+function mapDispatchToRefetch (dispatch) {
+  return {
+    testFunction(){
+      console.log('called')
+    }
   }
 }
 
@@ -42,8 +57,13 @@ function mapDispatchToProps (dispatch) {
         type: 'ADD_LIST',
         element
       })
+    },
+    incrementNumber(){
+      dispatch({
+        type: 'INCREMENT_NUMBER'
+      })
     }
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Container)
+export default enhancedConnect(mapStateToProps, mapStateToDependencies, mapDispatchToProps, mapDispatchToRefetch)(Container)
