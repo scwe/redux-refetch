@@ -42,21 +42,21 @@ function buildContainer (RealContainer, options){
 }
 
 export default function enhancedConnect(mapStateToProps, mapStateToDependencies, mapDispatchToProps, mapDispatchToRefetch, options = {}){
-  const mapState = (state, props) => {
-    const mappedProps = mapStateToProps ? mapStateToProps(state, props) : {}
-    const __dependencies = mapStateToDependencies ? mapStateToDependencies(state, props) : {}
+  const mapState = (state, ownProps) => {
+    const props = mapStateToProps ? mapStateToProps(state, ownProps) : {}
+    const __dependencies = mapStateToDependencies ? mapStateToDependencies(state, ownProps) : {}
     return {
-      ...mappedProps,
+      ...props,
       __dependencies
     }
   }
 
-  const mapDispatch = (dispatch) => {
-    const mappedProps = mapDispatchToProps ? mapDispatchToProps(dispatch) : {}
-    const __refetch = mapDispatchToRefetch ? mapDispatchToRefetch(dispatch) : {} 
+  const mapDispatch = (dispatch, ownProps) => {
+    const props = mapDispatchToProps ? mapDispatchToProps(dispatch, ownProps) : {}
+    const __refetch = mapDispatchToRefetch ? mapDispatchToRefetch(dispatch, ownProps) : {} 
 
     return {
-      ...mappedProps,
+      ...props,
       __refetch
     }
   }
