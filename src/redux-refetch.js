@@ -1,7 +1,14 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 
-function buildContainer (RealContainer){
+function areEqual(oldDependency, newDependency, equalityCheck){
+  if(!equalityCheck){
+    return oldDependency === newDependency
+  }
+  return equalityCheck(oldDependency, newDependency)
+}
+
+function buildContainer (RealContainer, options){
   return class DependentContainer extends PureComponent{
     getNormalProps(fullProps){
       const { __dependencies, __refetch, ...rest } = fullProps
@@ -11,7 +18,7 @@ function buildContainer (RealContainer){
     shouldRefetch (dependencies, newDependencies){
       let willRefetch = false
       Object.keys(dependencies).forEach((dependencyKey) => {
-        if(dependencies[dependencyKey] !== newDependencies[dependencyKey]){
+        if(!areEqual(dependencies[dependencyKey], newDependencies[dependencyKey], options.equalityCheck)){
           willRefetch = willRefetch || true
         }
       })
@@ -27,14 +34,14 @@ function buildContainer (RealContainer){
         this.refetch(nextProps.__refetch)
       }
     }
-    
+
     render () {
       return <RealContainer {...this.getNormalProps(this.props)} />
     }
   }
 }
 
-export default function enhancedConnect(mapStateToProps, mapStateToDependencies, mapDispatchToProps, mapDispatchToRefetch){
+export default function enhancedConnect(mapStateToProps, mapStateToDependencies, mapDispatchToProps, mapDispatchToRefetch, options = {}){
   const mapState = (state, props) => ({
     ...mapStateToProps(state, props),
     __dependencies: {
@@ -49,5 +56,10 @@ export default function enhancedConnect(mapStateToProps, mapStateToDependencies,
     }
   })
 
-  return (component) => connect(mapState, mapDispatch)(buildContainer(component))
+  return (component) => connect(
+    mapState, 
+    mapDispatch, 
+    options.mergeProps, 
+    options.connectOptions
+  )(buildContainer(component, options))
 }
