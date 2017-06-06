@@ -53,9 +53,18 @@ export default connect(
 #### `connect(?mapStateToProps, ?mapStateToDependencies, ?mapDispatchToProps, ?mapDispatchToRefetch, ?options)`
 
 
+##### Arguments
+
+* [`mapStateToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
+* [`mapStateToDependencies(state, [ownProps])`] (*Function*):
+* [`mapDispatchToProps(state)`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
+* [`mapDispatchToRefetch(state)`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
+* [`mapStateToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
+
 ### Testing
 
 * Make sure that all the arguments are optional
 * Make sure that suppling props to the container when rendering still get passed in
 * Test options for both `equalityCheck` and for the `react-redux.connect` stuff
 * Ensure the `mapDispatchToRefetch` functions actually get called
+* Ensure that ownProps are passed correctly everywhere
