@@ -36,12 +36,26 @@ class ExpensiveComponent extends Component {
   }
 }
 
+mapStateToDependencies(state, ownProps) {
+  return {
+    dependency1: dependency1Selector(state),
+    ...
+  }
+}
+
+mapDispatchToRefetch(state, ownProps) {
+  return {
+    refetchFunction,
+    refetchFunction2,
+    ...
+  }
+}
+
 export default connect(
   mapStateToProps,
   mapStateToDependencies,
   mapDispatchToProps,
-  mapDispatchToRefetch,
-  options
+  mapDispatchToRefetch
 )(ExpensiveComponent)
 ```
 
@@ -56,10 +70,13 @@ export default connect(
 ##### Arguments
 
 * [`mapStateToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
-* [`mapStateToDependencies(state, [ownProps])`] (*Function*):
-* [`mapDispatchToProps(state)`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
-* [`mapDispatchToRefetch(state)`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
-* [`mapStateToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
+* [`mapStateToDependencies(state, [ownProps])`] (*Function*): This function returns an object of all dependencies for the refetcher. It takes the redux state and the props supplied to the component as arguments and you should return an object containing all of the dependencies. When any of the dependencies supplied changes then all of the functions defined in `mapDispatchToRefetch` will be called.
+* [`mapDispatchToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
+* [`mapDispatchToRefetch(state, [ownProps])`] (*Function*): A function which takes both the redux state and the props supplied when rendering the component. It should return an object will
+* [`options`] (*Object*): If specified customizes the connector for both `redux-refetch` and `react-redux`. Possible options are as shown below.
+  * [`equalityCheck`] (*Function*): If supplied will test whether the dependencies have changed. If this argument is not supplied then it will default to `===`.
+  * [`mergeProps`] (*Function*): If specified, it is called with the results of `mapStateToProps`, `mapDispatchToProps` and `props` and expects the final props object as a return. More documentation on this can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments).
+  * [`connectOptions`] (*Object*): These are the options that get passed into `connect` from `react-redux`. Again more complete and well rounded documentation can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
 
 ### Testing
 
@@ -68,3 +85,9 @@ export default connect(
 * Test options for both `equalityCheck` and for the `react-redux.connect` stuff
 * Ensure the `mapDispatchToRefetch` functions actually get called
 * Ensure that ownProps are passed correctly everywhere
+* Make sure that when the component already has a property called `__dependencies` nothing breaks
+
+
+### TODO
+* Write tests
+* Probably change `mapDispatchToRefetch` and `mapStateToDependencies` to returning lists rather than objects. Feels more normal.
