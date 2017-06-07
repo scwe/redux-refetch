@@ -66,13 +66,14 @@ export default connect(
 
 #### `connect(?mapStateToProps, ?mapStateToDependencies, ?mapDispatchToProps, ?mapDispatchToRefetch, ?options)`
 
+The only part of this package. It is an enhanced version of `react-redux` [connect](https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options). It not only allows you to add redux action creators and properties from state as `props` within a react component, but it also allows you to ensure that, when one of the dependencies given in `mapStateToDependencies`, all of the refetching functions are called too.
 
 ##### Arguments
 
 * [`mapStateToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
 * [`mapStateToDependencies(state, [ownProps])`] (*Function*): This function returns an object of all dependencies for the refetcher. It takes the redux state and the props supplied to the component as arguments and you should return an object containing all of the dependencies. When any of the dependencies supplied changes then all of the functions defined in `mapDispatchToRefetch` will be called.
 * [`mapDispatchToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
-* [`mapDispatchToRefetch(state, [ownProps])`] (*Function*): A function which takes both the redux state and the props supplied when rendering the component. It should return an object will
+* [`mapDispatchToRefetch(state, [ownProps])`] (*Function*): A function which takes both the redux state and the props supplied when rendering the component. It should return an object with each of a functions to call when the any of the dependencies defined in `mapStateToDependencies` change.
 * [`options`] (*Object*): If specified customizes the connector for both `redux-refetch` and `react-redux`. Possible options are as shown below.
   * [`equalityCheck`] (*Function*): If supplied will test whether the dependencies have changed. If this argument is not supplied then it will default to `===`.
   * [`mergeProps`] (*Function*): If specified, it is called with the results of `mapStateToProps`, `mapDispatchToProps` and `props` and expects the final props object as a return. More documentation on this can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments).
