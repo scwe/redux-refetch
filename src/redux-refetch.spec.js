@@ -10,13 +10,20 @@ import configureStore from 'redux-mock-store'
 const middlewares = []
 const mockStore = configureStore(middlewares)
 
-const createTestComponent = (updateSpy) => {
+const createTestComponent = (updateSpy, propsSpy) => {
   return class OtherTestComponent extends PureComponent{
+    constructor(props){
+      super(props)
+      propsSpy && propsSpy(props)
+    }
+
     componentWillUpdate(){
       updateSpy && updateSpy()
     }
 
-    render(){ return null }
+    render(){ 
+      return null 
+    }
   }
 }
 
@@ -71,6 +78,7 @@ function reducer(state = initalState, action){
       return state
   }
 }
+
 
 it('should call the refetch when dependencies change', () => {
   const store = createStore(reducer)
@@ -144,23 +152,56 @@ it('shouldnt update the component when dependency is changed', () => {
 
 it('should pass props in correctly', () => {
   const store = createStore(reducer)
-  const TestComponent = connectTestComponent(createTestComponent())
+  const propsSpy = jest.fn()
+  const TestComponent = connectTestComponent(createTestComponent(null, propsSpy))
   const app = mount(
     <Provider store={store}>
       <TestComponent testProp={1}/>
     </Provider>
   )
 
-  console.log('app is: ', app.instance().props.children.props)
-
   store.dispatch({
     type: 'CHANGE_DEPENDENCY'
   })
 
-  expect(app.instance().props.children.props).toMatchObject({
+  expect(propsSpy).toHaveBeenCalledWith({
     prop: initalState.prop,
     testProp: 1
   })
 
 })
+
+it('should pass props when mapStateToProps is null', () => {
+
+})
+
+it('should pass props when mapStateToDispatch is null', () => {
+
+})
+
+it('should allow equalityCheck in options to change checking equality', () => {
+
+})
+
+it('should pass mergeProps to react-redux.connect', () => {
+
+})
+
+it('should pass options to reac-redux.connect', () => {
+
+})
+
+it('should pass ownProps into mapStateTo... and mapDispatchTo...', () => {
+
+})
+
+it('should allow props to be called __dependencies', () => {
+
+})
+
+it('should allow all arguments to be null', () => {
+  
+})
+
+
 
