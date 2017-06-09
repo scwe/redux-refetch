@@ -87,6 +87,7 @@ The only part of this package. It is an enhanced version of `react-redux` [conne
 * Ensure the `mapDispatchToRefetch` functions actually get called
 * Ensure that ownProps are passed correctly everywhere
 * Make sure that when the component already has a property called `__dependencies` nothing breaks
+* Test that when null is supplied for `mapStateToDependencies`, props still get passed correctly 
 
 
 ### TODO

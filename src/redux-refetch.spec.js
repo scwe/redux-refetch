@@ -10,34 +10,34 @@ import configureStore from 'redux-mock-store'
 const middlewares = []
 const mockStore = configureStore(middlewares)
 
-const createTestComponent = () => {
+const createTestComponent = (updateSpy) => {
   return class OtherTestComponent extends PureComponent{
     componentWillUpdate(){
-      console.log('Updating test component')
+      updateSpy && updateSpy()
     }
 
-    render(){
-      console.log('Rendering test component, props are: ', this.props)
-      return null
-    }
+    render(){ return null }
   }
 }
 
 function mapStateToProps(state){
   return {
-    prop: state.num_1
+    prop: state.prop
   }
 }
 
 function mapStateToDependencies (state) {
   return {
-    dependency: state.num_2
+    dependency: state.dependency
   }
 }
 
 
 function buildRefetchMapping(spy) {
   return (dispatch) => {
+    if(!spy){
+      return {}
+    }
     return {
       spy 
     }
@@ -53,26 +53,26 @@ function connectTestComponent (component, spy){
 }
 
 const initalState = {
-  num_2: 5,
-  num_1: 0
+  dependency: 5,
+  prop: 0
 }
 
 function reducer(state = initalState, action){
   switch(action.type){
-    case 'INCREMENT_NUMBER_1':
+    case 'CHANGE_PROP':
       return Object.assign({}, state, {
-        num_1: state.num_1 + 1
+        prop: state.prop + 1
       })
-    case 'INCREMENT_NUMBER_2':
+    case 'CHANGE_DEPENDENCY':
       return Object.assign({}, state, {
-        num_2: state.num_2 + 1
+        dependency: state.dependency + 1
       })
     default:
       return state
   }
 }
 
-it('should do something', () => {
+it('should call the refetch when dependencies change', () => {
   const store = createStore(reducer)
   const spy = jest.fn()
   const TestComponent = connectTestComponent(createTestComponent(), spy)
@@ -83,9 +83,84 @@ it('should do something', () => {
   )
 
   store.dispatch({
-    type: 'INCREMENT_NUMBER_2'
+    type: 'CHANGE_DEPENDENCY'
   })
 
   expect(spy.mock.calls.length).toEqual(1)
-});
+})
+
+it('shouldnt call refetch when dependencies dont change', () => {
+  const store = createStore(reducer)
+  const spy = jest.fn()
+  const TestComponent = connectTestComponent(createTestComponent(), spy)
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent/>
+    </Provider>
+  )
+
+  store.dispatch({
+    type: 'CHANGE_PROP'
+  })
+
+  expect(spy.mock.calls.length).toEqual(0)
+})
+
+it('should update the component when event is dispatched', () => {
+  const store = createStore(reducer)
+  const spy = jest.fn()
+  const updateSpy = jest.fn()
+  const TestComponent = connectTestComponent(createTestComponent(updateSpy), spy)
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent/>
+    </Provider>
+  )
+
+  store.dispatch({
+    type: 'CHANGE_PROP'
+  })
+
+  expect(updateSpy.mock.calls.length).toEqual(1)
+})
+
+it('shouldnt update the component when dependency is changed', () => {
+  const store = createStore(reducer)
+  const spy = jest.fn()
+  const updateSpy = jest.fn()
+  const TestComponent = connectTestComponent(createTestComponent(updateSpy), spy)
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent/>
+    </Provider>
+  )
+
+  store.dispatch({
+    type: 'CHANGE_DEPENDENCY'
+  })
+
+  expect(updateSpy.mock.calls.length).toEqual(0)
+})
+
+it('should pass props in correctly', () => {
+  const store = createStore(reducer)
+  const TestComponent = connectTestComponent(createTestComponent())
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent testProp={1}/>
+    </Provider>
+  )
+
+  console.log('app is: ', app.instance().props.children.props)
+
+  store.dispatch({
+    type: 'CHANGE_DEPENDENCY'
+  })
+
+  expect(app.instance().props.children.props).toMatchObject({
+    prop: initalState.prop,
+    testProp: 1
+  })
+
+})
 

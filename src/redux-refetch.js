@@ -45,6 +45,7 @@ export default function enhancedConnect(mapStateToProps, mapStateToDependencies,
   const mapState = (state, ownProps) => {
     const props = mapStateToProps ? mapStateToProps(state, ownProps) : {}
     const __dependencies = mapStateToDependencies ? mapStateToDependencies(state, ownProps) : {}
+    console.log('Props are: ', state, ownProps)
     return {
       ...props,
       __dependencies
