@@ -240,11 +240,89 @@ it('should allow equalityCheck in options to change checking equality', () => {
 })
 
 it('should pass mergeProps to react-redux.connect', () => {
+  const store = createStore(reducer)
+  const mergePropsSpy = jest.fn(() => ({}))
+  const propsSpy = jest.fn()
+  const options = {
+    mergeProps: mergePropsSpy
+  }
+  const TestComponent = connect(
+    mapStateToProps,
+    mapStateToDependencies,
+    null,
+    null, options)(createTestComponent(null, propsSpy))
 
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent manualProp={1}/>
+    </Provider>
+  )
+
+  expect(mergePropsSpy).toHaveBeenCalledTimes(1)
+  expect(mergePropsSpy).toHaveBeenCalledWith({
+    prop: initialState.prop,
+    __dependencies: {
+      dependency: initialState.dependency
+    },
+  },{
+    __refetch: {
+    }
+  },{
+    manualProp: 1
+  })
+
+  expect(propsSpy).toHaveBeenCalledTimes(1)
+  expect(propsSpy).toHaveBeenCalledWith({})
 })
 
 it('should pass options to reac-redux.connect', () => {
+  const store = createStore(reducer)
+  const stateEqualFunc = jest.fn()
+  const statePropsEqualFunc = jest.fn()
+  const propsSpy = jest.fn()
 
+  const options = {
+    connectOptions: {
+      areStatesEqual: stateEqualFunc,
+      areStatePropsEqual: statePropsEqualFunc
+    }
+  }
+  const TestComponent = connect(
+    mapStateToProps,
+    mapStateToDependencies,
+    null,
+    null, options)(createTestComponent(null, propsSpy))
+
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent manualProp={1}/>
+    </Provider>
+  )
+
+  expect(propsSpy).toHaveBeenCalledTimes(1)
+  expect(propsSpy).toHaveBeenCalledWith({
+    manualProp: 1,
+    prop: initialState.prop
+  })
+
+  expect(stateEqualFunc).toHaveBeenCalledWith({
+    prop: initialState.prop,
+    dependency: initialState.dependency
+  }, {
+    prop: initialState.prop,
+    dependency: initialState.dependency
+  })
+  expect(statePropsEqualFunc).toHaveBeenCalledWith({
+    prop: initialState.prop,
+    __dependencies: {
+      dependency: initialState.dependency
+    }
+  }, {
+    prop: initialState.prop,
+    __dependencies: {
+      dependency: initialState.dependency
+    }
+  }) 
 })
 
 it('should pass ownProps into mapStateTo... ', () => {
