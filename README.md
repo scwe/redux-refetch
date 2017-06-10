@@ -59,8 +59,9 @@ export default connect(
 )(ExpensiveComponent)
 ```
 
-`mapStateToProps` and `mapDispatchToProps` are the same as they are within [react-redux](https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options)
+`mapStateToProps` and `mapDispatchToProps` are the same as they are within [react-redux](https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options).
 
+ > Note: You cannot use the keys `__dependencies` or `__refetch` for any props, both manually supplied props i.e. `<Component prop={'prop'}/>` and when creating the `mapStateToProps` or `mapDispatchToProps` function. These are interally used keys when building the container.
 
 ### API
 
@@ -71,6 +72,8 @@ The only part of this package. It is an enhanced version of `react-redux` [conne
 ##### Arguments
 
 * [`mapStateToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
+
+
 * [`mapStateToDependencies(state, [ownProps])`] (*Function*): This function returns an object of all dependencies for the refetcher. It takes the redux state and the props supplied to the component as arguments and you should return an object containing all of the dependencies. When any of the dependencies supplied changes then all of the functions defined in `mapDispatchToRefetch` will be called.
 * [`mapDispatchToProps(state, [ownProps])`] (*Function*): This is the same as in `react-redux`. Documentation for that can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
 * [`mapDispatchToRefetch(state, [ownProps])`] (*Function*): A function which takes both the redux state and the props supplied when rendering the component. It should return an object with each of a functions to call when the any of the dependencies defined in `mapStateToDependencies` change.
@@ -79,15 +82,6 @@ The only part of this package. It is an enhanced version of `react-redux` [conne
   * [`mergeProps`] (*Function*): If specified, it is called with the results of `mapStateToProps`, `mapDispatchToProps` and `props` and expects the final props object as a return. More documentation on this can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments).
   * [`connectOptions`] (*Object*): These are the options that get passed into `connect` from `react-redux`. Again more complete and well rounded documentation can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
 
-### Testing
-
-* Make sure that all the arguments are optional
-* Make sure that suppling props to the container when rendering still get passed in
-* Test options for both `equalityCheck` and for the `react-redux.connect` stuff
-* Ensure the `mapDispatchToRefetch` functions actually get called
-* Ensure that ownProps are passed correctly everywhere
-* Make sure that when the component already has a property called `__dependencies` nothing breaks
-* Test that when null is supplied for `mapStateToDependencies`, props still get passed correctly 
 
 
 ### TODO
