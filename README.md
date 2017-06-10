@@ -83,7 +83,6 @@ The only part of this package. It is an enhanced version of `react-redux` [conne
   * [`connectOptions`] (*Object*): These are the options that get passed into `connect` from `react-redux`. Again more complete and well rounded documentation can be found [here](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments)
 
 
+### Contributing
 
-### TODO
-* Write tests
-* Probably change `mapDispatchToRefetch` and `mapStateToDependencies` to returning lists rather than objects. Feels more normal.
+Feel free to open a PR or submit an issue if you want to suggest or improve something
