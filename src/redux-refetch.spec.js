@@ -236,6 +236,35 @@ it('should pass props when mapStateToDispatch is null', () => {
 })
 
 it('should allow equalityCheck in options to change checking equality', () => {
+  const store = createStore(reducer)
+  const equalityCheckSpy = jest.fn(() => false)
+  const propsSpy = jest.fn()
+  const options = {
+    equalityCheck: equalityCheckSpy
+  }
+  const TestComponent = connect(
+    mapStateToProps,
+    mapStateToDependencies,
+    null,
+    null, options)(createTestComponent(null, propsSpy))
+
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent />
+    </Provider>
+  )
+
+  expect(propsSpy).toHaveBeenCalledTimes(1)
+  expect(propsSpy).toHaveBeenCalledWith({
+    prop: initialState.prop
+  })
+
+  store.dispatch({
+    type: 'CHANGE_DEPENDENCY'
+  })
+
+  expect(equalityCheckSpy).toHaveBeenCalledTimes(1)
+  expect(equalityCheckSpy).toHaveBeenCalledWith(initialState.dependency, initialState.dependency + 1)
 
 })
 
