@@ -51,20 +51,12 @@ function buildRefetchMapping(spy) {
   }
 }
 
-function connectTestComponent (component, spy){
-  return connect(
-    mapStateToProps,
-    mapStateToDependencies,
-    null,
-    buildRefetchMapping(spy))(component)
-}
-
-const initalState = {
+const initialState = {
   dependency: 5,
   prop: 0
 }
 
-function reducer(state = initalState, action){
+function reducer(state = initialState, action){
   switch(action.type){
     case 'CHANGE_PROP':
       return Object.assign({}, state, {
@@ -79,11 +71,14 @@ function reducer(state = initalState, action){
   }
 }
 
-
 it('should call the refetch when dependencies change', () => {
   const store = createStore(reducer)
   const spy = jest.fn()
-  const TestComponent = connectTestComponent(createTestComponent(), spy)
+  const TestComponent = connect(
+    mapStateToProps,
+    mapStateToDependencies,
+    null,
+    buildRefetchMapping(spy))(createTestComponent())
   const app = mount(
     <Provider store={store}>
       <TestComponent/>
@@ -94,13 +89,17 @@ it('should call the refetch when dependencies change', () => {
     type: 'CHANGE_DEPENDENCY'
   })
 
-  expect(spy.mock.calls.length).toEqual(1)
+  expect(spy).toHaveBeenCalledTimes(1)
 })
 
 it('shouldnt call refetch when dependencies dont change', () => {
   const store = createStore(reducer)
   const spy = jest.fn()
-  const TestComponent = connectTestComponent(createTestComponent(), spy)
+  const TestComponent = connect(
+    mapStateToProps,
+    mapStateToDependencies,
+    null,
+    buildRefetchMapping(spy))(createTestComponent())
   const app = mount(
     <Provider store={store}>
       <TestComponent/>
@@ -111,14 +110,17 @@ it('shouldnt call refetch when dependencies dont change', () => {
     type: 'CHANGE_PROP'
   })
 
-  expect(spy.mock.calls.length).toEqual(0)
+  expect(spy).toHaveBeenCalledTimes(0)
 })
 
 it('should update the component when event is dispatched', () => {
   const store = createStore(reducer)
-  const spy = jest.fn()
   const updateSpy = jest.fn()
-  const TestComponent = connectTestComponent(createTestComponent(updateSpy), spy)
+  const TestComponent = connect(
+    mapStateToProps,
+    mapStateToDependencies,
+    null,
+    buildRefetchMapping())(createTestComponent(updateSpy))
   const app = mount(
     <Provider store={store}>
       <TestComponent/>
@@ -129,14 +131,17 @@ it('should update the component when event is dispatched', () => {
     type: 'CHANGE_PROP'
   })
 
-  expect(updateSpy.mock.calls.length).toEqual(1)
+  expect(updateSpy).toHaveBeenCalledTimes(1)
 })
 
 it('shouldnt update the component when dependency is changed', () => {
   const store = createStore(reducer)
-  const spy = jest.fn()
   const updateSpy = jest.fn()
-  const TestComponent = connectTestComponent(createTestComponent(updateSpy), spy)
+  const TestComponent = connect(
+    mapStateToProps,
+    mapStateToDependencies,
+    null,
+    buildRefetchMapping())(createTestComponent(updateSpy))
   const app = mount(
     <Provider store={store}>
       <TestComponent/>
@@ -147,36 +152,87 @@ it('shouldnt update the component when dependency is changed', () => {
     type: 'CHANGE_DEPENDENCY'
   })
 
-  expect(updateSpy.mock.calls.length).toEqual(0)
+  expect(updateSpy).toHaveBeenCalledTimes(0)
 })
 
 it('should pass props in correctly', () => {
   const store = createStore(reducer)
   const propsSpy = jest.fn()
-  const TestComponent = connectTestComponent(createTestComponent(null, propsSpy))
+  const TestComponent = connect(
+    mapStateToProps,
+    mapStateToDependencies,
+    null,
+    buildRefetchMapping())(createTestComponent(null, propsSpy))
   const app = mount(
     <Provider store={store}>
-      <TestComponent testProp={1}/>
+      <TestComponent manualProp={1}/>
     </Provider>
   )
 
-  store.dispatch({
-    type: 'CHANGE_DEPENDENCY'
-  })
-
   expect(propsSpy).toHaveBeenCalledWith({
-    prop: initalState.prop,
-    testProp: 1
+    prop: initialState.prop,
+    manualProp: 1
   })
 
 })
 
 it('should pass props when mapStateToProps is null', () => {
+  const store = createStore(reducer)
+  const propsSpy = jest.fn()
+  const TestComponent = connect(
+    null,
+    mapStateToDependencies,
+    null,
+    buildRefetchMapping())(createTestComponent(null, propsSpy))
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent manualProp={1}/>
+    </Provider>
+  )
 
+  expect(propsSpy).toHaveBeenCalledWith({
+    manualProp: 1
+  })
+})
+
+it('should pass props when mapStateToDependencies is null', () => {
+  const store = createStore(reducer)
+  const propsSpy = jest.fn()
+  const TestComponent = connect(
+    mapStateToProps,
+    null,
+    null,
+    buildRefetchMapping())(createTestComponent(null, propsSpy))
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent manualProp={1}/>
+    </Provider>
+  )
+
+  expect(propsSpy).toHaveBeenCalledWith({
+    prop: initialState.prop,
+    manualProp: 1
+  })
 })
 
 it('should pass props when mapStateToDispatch is null', () => {
+  const store = createStore(reducer)
+  const propsSpy = jest.fn()
+  const TestComponent = connect(
+    mapStateToProps,
+    null,
+    null,
+    null)(createTestComponent(null, propsSpy))
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent manualProp={1}/>
+    </Provider>
+  )
 
+  expect(propsSpy).toHaveBeenCalledWith({
+    prop: initialState.prop,
+    manualProp: 1
+  })
 })
 
 it('should allow equalityCheck in options to change checking equality', () => {
@@ -191,17 +247,69 @@ it('should pass options to reac-redux.connect', () => {
 
 })
 
-it('should pass ownProps into mapStateTo... and mapDispatchTo...', () => {
+it('should pass ownProps into mapStateTo... ', () => {
+  const store = createStore(reducer)
+  const mockDependencies = jest.fn(() => ({
+    dependency: initialState.dependency
+  }))
+  const mockProps = jest.fn(() => ({
+    prop: initialState.prop
+  }))
 
+  const TestComponent = connect(
+    mockProps,
+    mockDependencies,
+    null,
+    null)(createTestComponent())
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent manualProp={1}/>
+    </Provider>
+  )
+
+  expect(mockDependencies).toHaveBeenCalledTimes(1)
+  expect(mockDependencies).toHaveBeenCalledWith({
+    prop: initialState.prop,
+    dependency: initialState.dependency
+  }, {
+    manualProp: 1
+  })
+
+  expect(mockProps).toHaveBeenCalledTimes(1)
+  expect(mockProps).toHaveBeenCalledWith({
+    prop: initialState.prop,
+    dependency: initialState.dependency
+  },{
+    manualProp: 1
+  })
 })
 
-it('should allow props to be called __dependencies', () => {
+it('should pass ownProps into mapDispatchTo... ', () => {
+  const store = createStore(reducer)
+  const mockDispatch = jest.fn()
+  const mockRefetch = jest.fn()
 
+  const TestComponent = connect(
+    null,
+    null,
+    mockDispatch,
+    mockRefetch)(createTestComponent())
+  const app = mount(
+    <Provider store={store}>
+      <TestComponent manualProp={1}/>
+    </Provider>
+  )
+
+  expect(mockDispatch).toHaveBeenCalledTimes(1)
+  expect(mockDispatch.mock.calls[0][1]).toMatchObject({
+    manualProp: 1
+  })
+  expect(typeof mockDispatch.mock.calls[0][0] === 'function').toBe(true)
+
+  expect(mockRefetch).toHaveBeenCalledTimes(1)
+  expect(mockRefetch.mock.calls[0][1]).toMatchObject({
+    manualProp: 1
+  })
+  expect(typeof mockRefetch.mock.calls[0][0] === 'function').toBe(true)
 })
-
-it('should allow all arguments to be null', () => {
-  
-})
-
-
 
