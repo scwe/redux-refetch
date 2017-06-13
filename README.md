@@ -23,7 +23,10 @@ within every component that renders some server side data.
 
 ### Installation
 
-In progress, planned to be on npm soon™.
+To install via npm, run
+```bash
+npm install --save redux-refetch
+```
 
 ### Usage
 
