@@ -1,6 +1,6 @@
 {
   "name": "redux-refetch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An automated refetcher for react-redux",
   "keywords": ["react", "redux", "refetch", "autofetcher"],
   "license": "MIT",
